@@ -1,24 +1,23 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Star, Link2, BarChart3, FileText, LayoutGrid, Settings, User, ChevronLeft, ChevronRight, Globe, Calendar, TrendingUp, TrendingDown, FolderOpen, MessageCircle, Plus, ChevronDown, Coins } from "lucide-react";
+import { Menu, Star, ChevronLeft, FolderOpen, Plus, ChevronDown, Settings, Coins, Globe, Calendar, BarChart3 } from "lucide-react";
 import { AppState } from "@/data/mockData";
 import { useIsMobile } from "@/hooks/use-mobile";
 import TopNav from "./TopNav";
 import LeftPane from "./LeftPane";
-import RightPane from "./RightPane";
 import MainStage from "./MainStage";
+import RightPane from "./RightPane";
 import MobileLayout from "./MobileLayout";
 import ExecutivePerformancePage from "./ExecutivePerformancePage";
+import SharedRealityPage from "./SharedRealityPage";
+import WhereToPlayPage from "./WhereToPlayPage";
+import ExecutionalExcellencePage from "./ExecutionalExcellencePage";
 import AllocationAIPage from "./AllocationAIPage";
 import AllocationAIInfoPage from "./AllocationAIInfoPage";
-import FreddyConnectPage from "./FreddyConnectPage";
-import WhereToPlayPage from "./WhereToPlayPage";
 
 const sidebarItems = [
   { icon: Star, label: "MyFreddyAI", active: true },
-  { icon: Link2, label: "Freddy.Connect" },
   { icon: BarChart3, label: "Allocation AI" },
-  { icon: LayoutGrid, label: "How to use AI" },
 ];
 
 const mockProjects = [
@@ -28,14 +27,16 @@ const mockProjects = [
   "Q3 Marketing Strategy",
 ];
 
-const mockChats = [
+export const mockChats = [
   "Consumer Insight An...",
   "Performance Metrics ...",
   "Marketing Q4 Metrics...",
   "Brand Campaign Ideas",
 ];
 
-const execKpisByPeriod: Record<string, {
+// Full original Executive KPIs (Vol MS, Val MS, Brand Power, Sales Power, Volume Growth HNK,
+// Value Growth HNK, Gross Margin) — matches the original HNK dashboard layout.
+export const execKpisByPeriod: Record<string, {
   primary: { label: string; value: string; trend: string; status: "positive" | "negative"; fullWidth: boolean }[];
   dual: { label: string; value: string; trend: string; status: "positive" | "negative" }[];
   secondary: { label: string; value: string; trend: string; status: "positive" | "negative" }[];
@@ -46,8 +47,7 @@ const execKpisByPeriod: Record<string, {
       { label: "VALUE MARKET SHARE", value: "29.0%", trend: "-3.1pp vs PY", status: "negative", fullWidth: true },
     ],
     dual: [
-      { label: "BRAND POWER", value: "6.5%", trend: "+0.3pp vs PY", status: "positive" },
-      { label: "SALES POWER", value: "48%", trend: "-2.5pp vs PY", status: "negative" },
+      { label: "BRAND POWER", value: "6.5%", trend: "+0.3pp vs PY", status: "positive" as const },
     ],
     secondary: [
       { label: "Volume Growth (HNK)", value: "-2,345 khl", trend: "-2.1% vs PY", status: "negative" },
@@ -61,8 +61,7 @@ const execKpisByPeriod: Record<string, {
       { label: "VALUE MARKET SHARE", value: "28.4%", trend: "-1.7pp vs PY", status: "negative", fullWidth: true },
     ],
     dual: [
-      { label: "BRAND POWER", value: "6.3%", trend: "+0.2pp vs PY", status: "positive" },
-      { label: "SALES POWER", value: "47%", trend: "-1.4pp vs PY", status: "negative" },
+      { label: "BRAND POWER", value: "6.3%", trend: "+0.2pp vs PY", status: "positive" as const },
     ],
     secondary: [
       { label: "Volume Growth (HNK)", value: "-1,124 khl", trend: "-1.2% vs PY", status: "negative" },
@@ -76,8 +75,7 @@ const execKpisByPeriod: Record<string, {
       { label: "VALUE MARKET SHARE", value: "29.4%", trend: "-4.0pp vs PY", status: "negative", fullWidth: true },
     ],
     dual: [
-      { label: "BRAND POWER", value: "6.7%", trend: "+0.4pp vs PY", status: "positive" },
-      { label: "SALES POWER", value: "49%", trend: "-3.3pp vs PY", status: "negative" },
+      { label: "BRAND POWER", value: "6.7%", trend: "+0.4pp vs PY", status: "positive" as const },
     ],
     secondary: [
       { label: "Volume Growth (HNK)", value: "-12,182 khl", trend: "-2.7% vs PY", status: "negative" },
@@ -91,8 +89,7 @@ const execKpisByPeriod: Record<string, {
       { label: "VALUE MARKET SHARE", value: "29.2%", trend: "-3.4pp vs PY", status: "negative", fullWidth: true },
     ],
     dual: [
-      { label: "BRAND POWER", value: "6.6%", trend: "+0.3pp vs PY", status: "positive" },
-      { label: "SALES POWER", value: "48%", trend: "-2.8pp vs PY", status: "negative" },
+      { label: "BRAND POWER", value: "6.6%", trend: "+0.3pp vs PY", status: "positive" as const },
     ],
     secondary: [
       { label: "Volume Growth (HNK)", value: "-9,518 khl", trend: "-2.3% vs PY", status: "negative" },
@@ -106,14 +103,12 @@ export default function Layout() {
   const isMobile = useIsMobile();
   const [activeState, setActiveState] = useState<AppState>("executive_performance");
   const [selectedBattle, setSelectedBattle] = useState<number | null>(null);
-  const [showAllocationAI, setShowAllocationAI] = useState(false);
-  const [pendingFiveCsTab, setPendingFiveCsTab] = useState<string | null>(null);
-  const [showAllocationAIInfo, setShowAllocationAIInfo] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
+  const [showAllocationAI, setShowAllocationAI] = useState(false);
+  const [showAllocationAIInfo, setShowAllocationAIInfo] = useState(false);
   const [region, setRegion] = useState("BR");
   const [period, setPeriod] = useState("L12w");
   const [projectsOpen, setProjectsOpen] = useState(true);
-  const [chatsOpen, setChatsOpen] = useState(true);
   const [activeSidebarItem, setActiveSidebarItem] = useState("MyFreddyAI");
 
   const periodKpis = execKpisByPeriod[period] ?? execKpisByPeriod.L12w;
@@ -137,8 +132,35 @@ export default function Layout() {
           {sidebarExpanded ? <ChevronLeft size={18} /> : <Menu size={20} />}
         </button>
 
+        {/* User profile (top-left, above nav) */}
+        {sidebarExpanded ? (
+          <div className="px-4 mb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground font-bold text-sm shrink-0">
+                TA
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-sidebar-foreground truncate">Tony</p>
+                <p className="text-[11px] text-sidebar-foreground/60 truncate">🇧🇷 São Paulo Office</p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-center mb-3">
+            <div
+              className="w-9 h-9 rounded-full bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground font-bold text-sm"
+              title="Tony · São Paulo Office"
+            >
+              TA
+            </div>
+          </div>
+        )}
+
+        {/* Divider between profile and nav */}
+        {sidebarExpanded && <div className="h-px bg-sidebar-border mx-4 mb-3" />}
+
         {/* Sidebar nav items */}
-        <div className={`${sidebarExpanded ? "px-3" : "px-1"} mb-4 space-y-0.5`}>
+        <div className={`${sidebarExpanded ? "px-3" : "px-1"} mb-3 space-y-0.5`}>
           {sidebarItems.map((item) => (
             <button
               key={item.label}
@@ -167,25 +189,7 @@ export default function Layout() {
           ))}
         </div>
 
-        {/* Divider */}
-        {sidebarExpanded && <div className="h-px bg-sidebar-border mx-4 mb-3" />}
-
-        {/* User profile */}
-        {sidebarExpanded && (
-          <div className="px-4 mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground font-bold text-sm">
-                TA
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-sidebar-foreground truncate">Tony</p>
-                <p className="text-[11px] text-sidebar-foreground/60">🇧🇷 São Paulo Office</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Filters */}
+        {/* OpCo + Period filters (HNK request: keep in left pane) */}
         {sidebarExpanded && (
           <div className="px-4 mb-4 space-y-2">
             <div className="text-[10px] uppercase tracking-wider text-sidebar-foreground/50 font-semibold">Filters</div>
@@ -196,6 +200,7 @@ export default function Layout() {
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
                   className="flex-1 bg-sidebar-accent text-sidebar-foreground text-xs rounded-lg px-2 py-1.5 border-none outline-none cursor-pointer"
+                  title="OpCo"
                 >
                   <option value="UK" disabled>United Kingdom</option>
                   <option value="NL" disabled>Netherlands</option>
@@ -209,6 +214,7 @@ export default function Layout() {
                   value={period}
                   onChange={(e) => setPeriod(e.target.value)}
                   className="flex-1 bg-sidebar-accent text-sidebar-foreground text-xs rounded-lg px-2 py-1.5 border-none outline-none cursor-pointer"
+                  title="Time period"
                 >
                   <option value="L12w">L12w (12 Weeks)</option>
                   <option value="L4w">L4w (4 Weeks)</option>
@@ -223,36 +229,56 @@ export default function Layout() {
         {/* Divider */}
         {sidebarExpanded && <div className="h-px bg-sidebar-border mx-4 mb-3" />}
 
-        {/* Executive KPIs */}
+        {/* Executive KPIs (HNK request: keep in left pane) — Y-scoped Sell-out + Brand Power */}
         {sidebarExpanded && (
           <div className="px-4 mb-4 space-y-2">
-            <div className="text-[10px] uppercase tracking-wider text-sidebar-foreground/50 font-semibold mb-2">Executive KPIs</div>
+            <div className="text-[10px] uppercase tracking-wider text-sidebar-foreground/50 font-semibold mb-2">
+              Executive KPIs
+            </div>
 
-            {/* Full-width primary KPIs */}
+            {/* Primary KPIs — full width */}
             {execKpisPrimary.map((kpi, i) => (
-              <div key={i} className="bg-sidebar-accent rounded-xl px-3 py-2.5 flex items-center justify-between gap-2">
+              <div
+                key={i}
+                className="bg-sidebar-accent rounded-xl px-3 py-2.5 flex items-center justify-between gap-2"
+              >
                 <span className="text-[11px] font-bold text-sidebar-foreground tracking-wide">{kpi.label}</span>
                 <div className="flex items-center gap-1.5">
                   <span className="text-sm font-bold text-sidebar-foreground">{kpi.value}</span>
-                  <span className={`text-[10px] font-semibold flex items-center gap-0.5 ${kpi.status === "positive" ? "text-[hsl(var(--status-green))]" : "text-[hsl(var(--status-red))]"}`}>
+                  <span
+                    className={`text-[10px] font-semibold flex items-center gap-0.5 ${
+                      kpi.status === "positive"
+                        ? "text-[hsl(var(--status-green))]"
+                        : "text-[hsl(var(--status-red))]"
+                    }`}
+                  >
                     {kpi.status === "positive" ? "↗" : "↘"} {kpi.trend}
                   </span>
                 </div>
               </div>
             ))}
 
-            {/* Dual KPIs side by side */}
-            <div className="grid grid-cols-2 gap-1.5">
-              {execKpisDual.map((kpi, i) => (
-                <div key={i} className="bg-sidebar-accent rounded-xl px-2.5 py-2.5">
-                  <div className="text-[9px] font-bold text-sidebar-foreground/70 uppercase tracking-wide mb-1">{kpi.label}</div>
-                  <div className="text-base font-bold text-sidebar-foreground">{kpi.value}</div>
-                  <div className={`text-[9px] font-semibold mt-0.5 flex items-center gap-0.5 ${kpi.status === "positive" ? "text-[hsl(var(--status-green))]" : "text-[hsl(var(--status-red))]"}`}>
+            {/* Brand Power tile (GREEN, CPM) */}
+            {execKpisDual.map((kpi, i) => (
+              <div
+                key={i}
+                className="bg-sidebar-accent rounded-xl px-3 py-2.5 flex items-center justify-between gap-2"
+              >
+                <span className="text-[11px] font-bold text-sidebar-foreground tracking-wide">{kpi.label}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-bold text-sidebar-foreground">{kpi.value}</span>
+                  <span
+                    className={`text-[10px] font-semibold flex items-center gap-0.5 ${
+                      kpi.status === "positive"
+                        ? "text-[hsl(var(--status-green))]"
+                        : "text-[hsl(var(--status-red))]"
+                    }`}
+                  >
                     {kpi.status === "positive" ? "↗" : "↘"} {kpi.trend}
-                  </div>
+                  </span>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
 
             {/* Secondary KPIs */}
             {execKpisSecondary.map((kpi, i) => (
@@ -260,7 +286,13 @@ export default function Layout() {
                 <div className="text-[10px] text-sidebar-foreground/60 mb-1">{kpi.label}</div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold text-sidebar-foreground">{kpi.value}</span>
-                  <span className={`text-[10px] font-semibold flex items-center gap-0.5 ${kpi.status === "positive" ? "text-[hsl(var(--status-green))]" : "text-[hsl(var(--status-red))]"}`}>
+                  <span
+                    className={`text-[10px] font-semibold flex items-center gap-0.5 ${
+                      kpi.status === "positive"
+                        ? "text-[hsl(var(--status-green))]"
+                        : "text-[hsl(var(--status-red))]"
+                    }`}
+                  >
                     {kpi.status === "positive" ? "↗" : "↘"} {kpi.trend}
                   </span>
                 </div>
@@ -275,7 +307,6 @@ export default function Layout() {
         {/* Projects Section */}
         {sidebarExpanded && (
           <div className="px-3 mb-2 flex-1 overflow-y-auto">
-            {/* Projects */}
             <div className="mb-3">
               <button
                 onClick={() => setProjectsOpen(!projectsOpen)}
@@ -302,41 +333,12 @@ export default function Layout() {
                 )}
               </AnimatePresence>
             </div>
-
-            {/* Your Chats */}
-            <div className="mb-3">
-              <button
-                onClick={() => setChatsOpen(!chatsOpen)}
-                className="flex items-center justify-between w-full text-[11px] font-semibold text-sidebar-foreground/70 uppercase tracking-wider mb-1.5 px-1 hover:text-sidebar-foreground transition-colors"
-              >
-                <span className="flex items-center gap-1">
-                  Your chats
-                  <ChevronDown size={12} className={`transition-transform ${chatsOpen ? "" : "-rotate-90"}`} />
-                </span>
-                <Plus size={13} className="text-sidebar-primary hover:text-sidebar-primary/80" />
-              </button>
-              <AnimatePresence>
-                {chatsOpen && (
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                    <div className="space-y-0.5">
-                      {mockChats.map((c, i) => (
-                        <button key={i} className="flex items-center gap-2 w-full px-2 py-1.5 rounded-lg text-xs text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors text-left truncate">
-                          <MessageCircle size={14} className="shrink-0 text-sidebar-foreground/50" />
-                          <span className="truncate">{c}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
           </div>
         )}
 
         {!sidebarExpanded && (
           <div className="flex flex-col gap-1 items-center flex-1">
             <button className="p-2.5 rounded-xl text-sidebar-foreground hover:bg-sidebar-accent" title="Projects"><FolderOpen size={18} /></button>
-            <button className="p-2.5 rounded-xl text-sidebar-foreground hover:bg-sidebar-accent" title="Chats"><MessageCircle size={18} /></button>
           </div>
         )}
 
@@ -358,52 +360,84 @@ export default function Layout() {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {activeSidebarItem === "MyFreddyAI" && (
-          <TopNav activeState={activeState} onStateChange={(s) => { setActiveState(s); setSelectedBattle(null); setShowAllocationAI(false); setShowAllocationAIInfo(false); setActiveSidebarItem("MyFreddyAI"); }} />
-        )}
-        {activeSidebarItem === "Freddy.Connect" ? (
-          <FreddyConnectPage />
-        ) : showAllocationAIInfo ? (
-          <AllocationAIInfoPage onAccessPlatform={() => { setShowAllocationAIInfo(false); setShowAllocationAI(true); }} />
-        ) : showAllocationAI ? (
-          <AllocationAIPage onBack={() => { setShowAllocationAI(false); setShowAllocationAIInfo(true); }} />
-        ) : activeState === "where_to_play" ? (
-          <div className="flex-1 flex overflow-hidden min-h-0">
-            {activeSidebarItem === "MyFreddyAI" && (
-              <div className="shrink-0 overflow-hidden flex flex-col border-r border-border">
-                <LeftPane activeState={activeState} selectedBattle={null} onStateChange={(s, opts) => { setActiveState(s); setSelectedBattle(null); if (opts?.fiveCsTab) setPendingFiveCsTab(opts.fiveCsTab); }} />
+        <TopNav
+          activeState={activeState}
+          onStateChange={(s) => {
+            setActiveState(s);
+            setSelectedBattle(null);
+            setActiveSidebarItem("MyFreddyAI");
+            setShowAllocationAI(false);
+            setShowAllocationAIInfo(false);
+          }}
+        />
+        <div className="flex-1 flex overflow-hidden min-h-0">
+          {showAllocationAIInfo ? (
+            <AllocationAIInfoPage
+              onAccessPlatform={() => {
+                setShowAllocationAIInfo(false);
+                setShowAllocationAI(true);
+              }}
+            />
+          ) : showAllocationAI ? (
+            <AllocationAIPage
+              onBack={() => {
+                setShowAllocationAI(false);
+                setShowAllocationAIInfo(true);
+              }}
+            />
+          ) : activeState === "how_to_win" ? (
+            // How to Win — original MainStage + RightPane design. MWB 1–3 scope (BGS, GREEN-Y).
+            <>
+              <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+                <MainStage
+                  activeState={activeState}
+                  selectedBattle={selectedBattle}
+                  onSelectBattle={setSelectedBattle}
+                />
+                <div className="flex-1 overflow-y-auto">
+                  <RightPane
+                    activeState={activeState}
+                    selectedBattle={selectedBattle}
+                    period={period}
+                    onNavigate={(s, b) => { setActiveState(s); setSelectedBattle(b); }}
+                    onOpenAllocationAI={() => setShowAllocationAI(true)}
+                  />
+                </div>
               </div>
-            )}
-            <WhereToPlayPage />
-          </div>
-        ) : activeState === "executive_performance" ? (
-          <div className="flex-1 flex overflow-hidden min-h-0">
-            {activeSidebarItem === "MyFreddyAI" && (
-              <div className="shrink-0 overflow-hidden flex flex-col border-r border-border">
-                <LeftPane activeState={activeState} selectedBattle={null} onStateChange={(s, opts) => { setActiveState(s); setSelectedBattle(null); if (opts?.fiveCsTab) setPendingFiveCsTab(opts.fiveCsTab); }} />
+              <div className="shrink-0 overflow-hidden flex flex-col border-l border-border">
+                <LeftPane
+                  activeState={activeState}
+                  selectedBattle={selectedBattle}
+                  onStateChange={(s) => {
+                    setActiveState(s);
+                    setSelectedBattle(null);
+                  }}
+                />
               </div>
-            )}
-            <ExecutivePerformancePage region={region} period={period} onStateChange={setActiveState} />
-          </div>
-        ) : (
-          <div className="flex-1 flex overflow-hidden min-h-0">
-            {activeSidebarItem === "MyFreddyAI" && (
-              <div className="shrink-0 overflow-hidden flex flex-col border-r border-border">
-                <LeftPane activeState={activeState} selectedBattle={selectedBattle} onStateChange={(s, opts) => { setActiveState(s); setSelectedBattle(null); if (opts?.fiveCsTab) setPendingFiveCsTab(opts.fiveCsTab); }} />
+            </>
+          ) : (
+            // All other tabs: dedicated pages scoped to GREEN-ready data.
+            <>
+              {activeState === "executive_performance" && (
+                <ExecutivePerformancePage region={region} period={period} onStateChange={setActiveState} />
+              )}
+              {activeState === "shared_reality" && <SharedRealityPage period={period} />}
+              {activeState === "where_to_play" && <WhereToPlayPage period={period} />}
+              {activeState === "excellent_execution" && <ExecutionalExcellencePage period={period} />}
+              <div className="shrink-0 overflow-hidden flex flex-col border-l border-border">
+                <LeftPane
+                  activeState={activeState}
+                  selectedBattle={selectedBattle}
+                  onStateChange={(s) => {
+                    setActiveState(s);
+                    setSelectedBattle(null);
+                  }}
+                />
               </div>
-            )}
-            <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-              <MainStage
-                activeState={activeState}
-                selectedBattle={selectedBattle}
-                onSelectBattle={setSelectedBattle}
-              />
-              <div className="flex-1 overflow-y-auto">
-                <RightPane activeState={activeState} selectedBattle={selectedBattle} period={period} onNavigate={(s, b) => { setActiveState(s); setSelectedBattle(b); }} onOpenAllocationAI={() => setShowAllocationAI(true)} initialFiveCsTab={pendingFiveCsTab} onFiveCsTabConsumed={() => setPendingFiveCsTab(null)} />
-              </div>
-            </div>
-          </div>
-        )}
+            </>
+          )}
+        </div>
+
       </div>
     </div>
   );

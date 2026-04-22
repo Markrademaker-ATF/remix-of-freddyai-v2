@@ -5,23 +5,48 @@ import { Home } from "lucide-react";
 interface TopNavProps {
   activeState: AppState;
   onStateChange: (state: AppState) => void;
+  // region/period intentionally not rendered here — HNK request: keep those filters in the left pane.
+  region?: string;
+  onRegionChange?: (region: string) => void;
+  period?: string;
+  onPeriodChange?: (period: string) => void;
 }
 
+// Scoped demo: only surfaces powered by Y-marked Sell-out + Brand Power metrics.
 const tabs: { label: string; state: AppState; base: string; active: string }[] = [
-  { label: "Shared Reality", state: "shared_reality", base: "bg-[hsl(210,20%,90%)] text-[hsl(210,30%,40%)]", active: "bg-[hsl(210,50%,45%)] text-white ring-2 ring-[hsl(210,50%,35%)] scale-105 shadow-lg" },
-  { label: "Where to Play", state: "where_to_play", base: "bg-[hsl(150,15%,90%)] text-[hsl(150,25%,35%)]", active: "bg-[hsl(138,100%,25.5%)] text-white ring-2 ring-[hsl(138,80%,18%)] scale-105 shadow-lg" },
-  { label: "How to Win", state: "how_to_win", base: "bg-[hsl(270,15%,90%)] text-[hsl(270,25%,40%)]", active: "bg-[hsl(270,35%,48%)] text-white ring-2 ring-[hsl(270,35%,36%)] scale-105 shadow-lg" },
-  { label: "Executional Excellence", state: "excellent_execution", base: "bg-[hsl(40,15%,90%)] text-[hsl(40,25%,40%)]", active: "bg-[hsl(35,45%,50%)] text-white ring-2 ring-[hsl(35,45%,38%)] scale-105 shadow-lg" },
+  {
+    label: "Shared Reality",
+    state: "shared_reality",
+    base: "bg-[hsl(210,20%,90%)] text-[hsl(210,30%,40%)]",
+    active: "bg-[hsl(210,50%,45%)] text-white ring-2 ring-[hsl(210,50%,35%)] scale-105 shadow-lg",
+  },
+  {
+    label: "Where to Play",
+    state: "where_to_play",
+    base: "bg-[hsl(150,15%,90%)] text-[hsl(150,25%,35%)]",
+    active: "bg-[hsl(138,100%,25.5%)] text-white ring-2 ring-[hsl(138,80%,18%)] scale-105 shadow-lg",
+  },
+  {
+    label: "How to Win",
+    state: "how_to_win",
+    base: "bg-[hsl(270,15%,90%)] text-[hsl(270,25%,40%)]",
+    active: "bg-[hsl(270,35%,48%)] text-white ring-2 ring-[hsl(270,35%,36%)] scale-105 shadow-lg",
+  },
+  {
+    label: "Executional Excellence",
+    state: "excellent_execution",
+    base: "bg-[hsl(40,15%,90%)] text-[hsl(40,25%,40%)]",
+    active: "bg-[hsl(35,45%,50%)] text-white ring-2 ring-[hsl(35,45%,38%)] scale-105 shadow-lg",
+  },
 ];
 
 export default function TopNav({ activeState, onStateChange }: TopNavProps) {
   return (
-    <header className="flex items-center px-5 py-3.5 gap-5 bg-white border-b border-border">
+    <header className="flex items-center px-5 py-3 gap-5 bg-white border-b border-border shrink-0">
       {/* Logo */}
       <div className="flex items-center shrink-0">
         <img src={freddyLogo} alt="Freddy AI" className="h-8" />
       </div>
-
 
       {/* Home / Executive Performance button */}
       <button
@@ -43,7 +68,7 @@ export default function TopNav({ activeState, onStateChange }: TopNavProps) {
         <div className="w-px h-2.5 bg-gradient-to-t from-transparent to-border" />
       </div>
 
-      {/* Main 3 nav pills */}
+      {/* Navigation pills */}
       <div className="flex gap-1.5 flex-1 justify-center bg-gradient-to-b from-muted/30 to-muted/50 rounded-2xl px-3 py-2 border border-border/40 shadow-inner">
         {tabs.map((tab) => (
           <button

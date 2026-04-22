@@ -96,18 +96,8 @@ function BattleCard({ b, selected, onSelect }: { b: { id: number; name: string; 
 }
 
 export default function MainStage({ activeState, selectedBattle, onSelectBattle }: MainStageProps) {
-  const state1 = mockData.scenarios.state_1_shared_reality;
   const state2 = mockData.scenarios.state_2_how_to_win;
   const state3 = mockData.scenarios.state_3_excellent_execution;
-
-  const kpis = Object.values(state1.top_kpis);
-
-  const kpiStatusClass = (status: string) => {
-    if (status === "positive") return "text-status-green";
-    if (status === "negative") return "text-status-red";
-    if (status === "warning") return "text-status-orange";
-    return "text-muted-foreground";
-  };
 
   const STRATEGIC_DOCS = [
     { label: "Latest Annual Plan", file: "annual-plan-2025.pdf" },
@@ -137,30 +127,32 @@ export default function MainStage({ activeState, selectedBattle, onSelectBattle 
           ))}
         </div>
 
-        {/* Battle card groups */}
+        {/* Battle card groups — Execute-to-Win hidden when empty (MWB 1-3 scope) */}
         <div className="flex gap-4 justify-center items-stretch w-full">
-          {/* Design to Win group */}
-          <div className="flex flex-col items-stretch gap-1.5 flex-[3]">
-            <div className="bg-[#008200] text-white text-[10px] font-bold uppercase tracking-wider px-4 py-1 rounded-t-lg text-center">
-              {groupLabel1}
+          {group1.length > 0 && (
+            <div className="flex flex-col items-stretch gap-1.5 flex-[3]">
+              <div className="bg-[#008200] text-white text-[10px] font-bold uppercase tracking-wider px-4 py-1 rounded-t-lg text-center">
+                {groupLabel1}
+              </div>
+              <div className="flex gap-2 w-full">
+                {group1.map((b) => (
+                  <BattleCard key={b.id} b={b} selected={selectedBattle === b.id} onSelect={() => onSelectBattle(b.id === selectedBattle ? null : b.id)} />
+                ))}
+              </div>
             </div>
-            <div className="flex gap-2 w-full">
-              {group1.map((b) => (
-                <BattleCard key={b.id} b={b} selected={selectedBattle === b.id} onSelect={() => onSelectBattle(b.id === selectedBattle ? null : b.id)} />
-              ))}
+          )}
+          {group2.length > 0 && (
+            <div className="flex flex-col items-stretch gap-1.5 flex-[6]">
+              <div className="bg-[#008200] text-white text-[10px] font-bold uppercase tracking-wider px-4 py-1 rounded-t-lg text-center">
+                {groupLabel2}
+              </div>
+              <div className="flex gap-2 w-full">
+                {group2.map((b) => (
+                  <BattleCard key={b.id} b={b} selected={selectedBattle === b.id} onSelect={() => onSelectBattle(b.id === selectedBattle ? null : b.id)} />
+                ))}
+              </div>
             </div>
-          </div>
-          {/* Execute to Win group */}
-          <div className="flex flex-col items-stretch gap-1.5 flex-[6]">
-            <div className="bg-[#008200] text-white text-[10px] font-bold uppercase tracking-wider px-4 py-1 rounded-t-lg text-center">
-              {groupLabel2}
-            </div>
-            <div className="flex gap-2 w-full">
-              {group2.map((b) => (
-                <BattleCard key={b.id} b={b} selected={selectedBattle === b.id} onSelect={() => onSelectBattle(b.id === selectedBattle ? null : b.id)} />
-              ))}
-            </div>
-          </div>
+          )}
         </div>
       </div>
     );

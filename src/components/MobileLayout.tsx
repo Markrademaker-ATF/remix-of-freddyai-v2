@@ -27,14 +27,8 @@ export default function MobileLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const state2 = mockData.scenarios.state_2_how_to_win;
-  const state3 = mockData.scenarios.state_3_excellent_execution;
 
-  const battles =
-    activeState === "how_to_win"
-      ? state2.must_win_battles
-      : activeState === "excellent_execution"
-        ? state3.must_win_battles
-        : [];
+  const battles = activeState === "how_to_win" ? state2.must_win_battles : [];
 
   const selectedBattleName = battles.find((b) => b.id === selectedBattle)?.name;
 

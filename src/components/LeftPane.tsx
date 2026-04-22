@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Zap, BookOpen, Plus, Map, Trophy, AlertTriangle, ArrowRight } from "lucide-react";
+import { Search, Zap, BookOpen, Plus, Map, Trophy, ChevronDown, MessageCircle } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { mockData, AppState } from "@/data/mockData";
+import { AppState } from "@/data/mockData";
+import { mockChats } from "./Layout";
 
 interface LeftPaneProps {
   activeState: AppState;
@@ -12,63 +13,30 @@ interface LeftPaneProps {
 }
 
 
-// Context-aware power prompts per state / battle
+// Scoped demo (Phase 1): prompts only reference Y-marked metrics
+// (Vol/Val Market Share, Vol/Val Growth, Off-Trade Vol. Share, Brand Power pillars, MWBs 1–3).
 const powerPromptsMap: Record<string, string[]> = {
-  home: [
-    "How has non-alcoholic beer demand changed in the last 12 months?",
-    "What marketing strategies make Stella Artois successful in the premium segment?",
-    "Create a campaign brief for sustainability initiatives targeting Gen Z consumers",
-  ],
   shared_reality: [
     "Which Heineken brands drove Brand Power growth in the OpCo?",
-    "How is our Category performing vs. the total beverage market?",
-    "Summarize the competitive landscape for Brazil in the past 12 weeks",
+    "Where are we losing Value Market Share faster than Volume Market Share?",
+    "How is Off-Trade Volume Growth trending vs. On-Trade this period?",
   ],
   how_to_win: [
-    "Which Must-Win Battles need the most urgent attention?",
-    "Compare our brand positioning vs. Carlsberg and AB InBev",
-    "Recommend a prioritisation strategy for the Execute to Win battles",
-  ],
-  how_to_win_5: [
-    "What is the cannibalization rate between Silver and Original?",
-    "Show me penetration overlap by channel",
-    "Recommend pack size strategy to reduce cannibalization",
-  ],
-  how_to_win_4: [
-    "What is driving the Budget Optimization alert for Battle #4?",
-    "How does our ATL mix compare to industry benchmarks?",
-    "Recommend media channel reallocation for Breakthrough Communication",
-  ],
-  how_to_win_7: [
-    "Which promotions are below ROI threshold?",
-    "Recommend activation budget reallocation",
-    "Show promotional uplift by retailer",
-  ],
-  excellent_execution: [
-    "Which execution battle has the biggest ROI gap to close?",
-    "How does our distribution footprint compare to Carlsberg?",
-    "Show the activation calendar efficiency for Q4",
-  ],
-  excellent_execution_4: [
-    "Why is the UCL Sponsorship ROI outperforming Desperados promo?",
-    "Which brand drove Spontaneous Awareness growth most?",
-    "Show Amstel's Meaningful vs Salient correlation over time",
-  ],
-  excellent_execution_7: [
-    "Which promotions are below ROI threshold?",
-    "Recommend activation budget reallocation",
-    "Show promotional uplift by retailer",
+    "Which Design-to-Win battle (MWB 1–3) has the strongest Brand Power signal?",
+    "Why is Amstel Salient down while Meaningful and Different are up?",
+    "Recommend a focus for MWB 2 (Iconic Brand Identity) based on the Salient gap",
   ],
   executive_performance: [
-    "Which KPI has the biggest gap vs prior year?",
-    "Summarize market share trends by brand for this period",
-    "Compare brand power vs sales power performance",
-    "What's driving the volume decline in Off-trade?",
+    "Which Y-scoped KPI has the biggest gap vs prior year?",
+    "Summarise Volume and Value Market Share trends by brand for this period",
+    "Compare Brand Power Index across Heineken, Amstel and Schin",
+    "What's driving the Off-Trade Volume Growth lift for Heineken?",
   ],
 };
 
-// Predefined rich responses with action buttons
-const AMSTEL_ROS_PROMPT = "I see Amstel RoS is lagging, and I suspect that promo/BTL might be the issue. Can you suggest what is driving this exactly?";
+// Scoped demo: predefined response uses ONLY Y-marked metrics
+// (Brand Power pillars: Meaningful, Different, Salient + Off-Trade Vol. Share).
+const AMSTEL_SALIENT_PROMPT = "Why is Amstel Salient down while Meaningful and Different are up?";
 
 interface ChatAction {
   label: string;
@@ -83,25 +51,22 @@ interface RichResponse {
 }
 
 const predefinedResponses: Record<string, RichResponse> = {
-  [AMSTEL_ROS_PROMPT]: {
-    text: `Great question. Based on the data, I've identified **three key hypotheses** that are likely driving Amstel's declining Rate of Sales:
+  [AMSTEL_SALIENT_PROMPT]: {
+    text: `Good question. Looking only at the Brand Power pillars we have in DFC, the signal on Amstel is unambiguous:
 
-**1. 📉 Promo pressure & depth below target**
-Amstel's promotional intensity is running below plan in On-trade. Promo depth is ~15% below the category average, meaning fewer consumers are being incentivized to trial or repeat purchase.
-→ **Action:** Use the **Promo Advisor** tool to optimize promo calendar and maximize efficiency per €1 spent.
+**1. 🧠 Meaningful and Different are building**
+Amstel Meaningful is **+2.8pp vs PY** and Different is **+2.8pp vs PY** — the proposition is resonating. Consumers who engage with the brand rate it more favourably than a year ago.
 
-**2. 🏪 POSM coverage gap in on-trade**
-Amstel's Point-of-Sale Material coverage in on-trade outlets is **22% lower** than Heineken® and **18% lower** than Brahma — whose aggressive on-trade expansion is closing the visibility gap. This directly impacts impulse purchase conversion at the point of sale.
-→ **Action:** Assess the opportunity to amplify POSM visibility in high-traffic on-trade locations, particularly in Southeast and South regions where Brahma is strongest.
+**2. 📉 Salient is collapsing**
+Amstel Salient is **-14.6pp vs PY** — the steepest Brand Power decline in the portfolio. The equity is there, but the brand is not showing up in the consumer's consideration set.
 
-**3. ☀️ Carnival season weather opportunity**
-Weather forecasts indicate **excellent conditions** during the upcoming carnival period — a prime window for on-trade consumption. This presents a tactical opportunity to boost Amstel sales through targeted BTL execution and sampling activations.
-→ **Action:** Fast-track carnival BTL activation plan with focus on On-trade and festival venues.
+**3. 🛒 Off-Trade is the channel where Amstel can recover fastest**
+Off-Trade Vol. Share is the only Y-scoped sell-out metric in growth for Heineken this period. Amstel's Salience gap is biggest in Off-Trade shoppers, so that's where investment will translate fastest into Volume Market Share.
 
-I recommend investigating these areas further:`,
+→ **Takeaway:** The Meaningful + Different gains are wasted until Salient is rebuilt. Prioritise MWB 2 (Iconic Brand Identity) activity in Off-Trade.`,
     actions: [
-      { label: "Investigate channel share in Shared Reality", icon: Map, targetState: "shared_reality", fiveCsTab: "channel" },
-      { label: "Investigate visibility in How to Win", icon: Trophy, targetState: "how_to_win" },
+      { label: "Investigate Brand Power in Shared Reality", icon: Map, targetState: "shared_reality", fiveCsTab: "channel" },
+      { label: "Investigate MWB 2 in How to Win", icon: Trophy, targetState: "how_to_win" },
     ],
   },
 };
@@ -109,7 +74,7 @@ I recommend investigating these areas further:`,
 function getContextPrompts(activeState: AppState, selectedBattle: number | null): string[] {
   const battleKey = selectedBattle ? `${activeState}_${selectedBattle}` : null;
   if (battleKey && powerPromptsMap[battleKey]) return powerPromptsMap[battleKey];
-  return powerPromptsMap[activeState] ?? powerPromptsMap.home;
+  return powerPromptsMap[activeState] ?? powerPromptsMap.executive_performance;
 }
 
 export default function LeftPane({ activeState, selectedBattle, onStateChange }: LeftPaneProps) {
@@ -117,7 +82,8 @@ export default function LeftPane({ activeState, selectedBattle, onStateChange }:
   const [inputValue, setInputValue] = useState("");
   const [isDrinking, setIsDrinking] = useState(false);
   const [isBrewing, setIsBrewing] = useState(false);
-  const chatSim = mockData.scenarios.state_1_shared_reality.chat_simulation;
+  const [promptsOpen, setPromptsOpen] = useState(false);
+  const [chatsOpen, setChatsOpen] = useState(false);
   // Resize state
   const isResizing = useRef(false);
   const startX = useRef(0);
@@ -130,7 +96,9 @@ export default function LeftPane({ activeState, selectedBattle, onStateChange }:
     startWidth.current = containerRef.current?.offsetWidth ?? 300;
     const onMouseMove = (ev: MouseEvent) => {
       if (!isResizing.current) return;
-      const delta = ev.clientX - startX.current;
+      // Handle sits on the LEFT edge now (pane is on the right side of the viewport),
+      // so dragging right should SHRINK and dragging left should GROW.
+      const delta = startX.current - ev.clientX;
       const newW = Math.max(220, Math.min(600, startWidth.current + delta));
       if (containerRef.current) {
         containerRef.current.style.width = `${newW}px`;
@@ -152,7 +120,7 @@ export default function LeftPane({ activeState, selectedBattle, onStateChange }:
   };
 
   const handleSendMessage = (prompt: string) => {
-    const richResponse = predefinedResponses[AMSTEL_ROS_PROMPT];
+    const richResponse = predefinedResponses[AMSTEL_SALIENT_PROMPT];
     setChatMessages([{ role: "user", text: prompt }]);
     setIsBrewing(true);
     setTimeout(() => {
@@ -216,38 +184,111 @@ export default function LeftPane({ activeState, selectedBattle, onStateChange }:
 
   const hasMessages = chatMessages.length > 0;
 
+  // Collapsible, cleaner — opens into a tight stack of prompts instead of always-listed.
   const PowerPromptsSection = ({ compact = false }: { compact?: boolean }) => (
     <div className={compact ? "mt-2" : "w-full max-w-lg mt-6"}>
-      <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5">
-        <Zap size={11} className="text-accent" />
-        Power Prompts
-      </div>
-      <div className="flex flex-col gap-1.5">
-        {contextPrompts.map((p, i) => (
-          <button
-            key={i}
-            onClick={() => handlePromptClick(p)}
-            className="suggested-prompt text-left px-3 py-2"
+      <button
+        onClick={() => setPromptsOpen(!promptsOpen)}
+        className="w-full flex items-center justify-between gap-2 rounded-xl border border-border bg-card/60 hover:bg-card hover:border-accent/50 transition-colors px-3 py-2"
+      >
+        <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-foreground">
+          <Zap size={12} className="text-accent" />
+          Power Prompts
+          <span className="ml-1 text-[10px] font-semibold text-muted-foreground bg-muted/60 rounded-full px-1.5 py-[1px]">
+            {contextPrompts.length}
+          </span>
+        </span>
+        <ChevronDown
+          size={13}
+          className={`text-muted-foreground transition-transform duration-200 ${promptsOpen ? "rotate-180" : ""}`}
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {promptsOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
           >
-            <div className="flex items-center gap-2">
-              <span className="text-primary text-sm">↗</span>
-              <span className={`${compact ? "text-xs" : "text-sm"} font-medium`}>{p}</span>
+            <div className="flex flex-col gap-1 mt-1.5">
+              {contextPrompts.map((p, i) => (
+                <button
+                  key={i}
+                  onClick={() => handlePromptClick(p)}
+                  className="suggested-prompt text-left px-3 py-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-primary text-sm">↗</span>
+                    <span className={`${compact ? "text-xs" : "text-sm"} font-medium`}>{p}</span>
+                  </div>
+                </button>
+              ))}
             </div>
-          </button>
-        ))}
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+
+  // Your chats — moved from the left sidebar to live under the chat input.
+  const YourChatsSection = ({ compact = false }: { compact?: boolean }) => (
+    <div className={compact ? "mt-2" : "w-full max-w-lg mt-2"}>
+      <button
+        onClick={() => setChatsOpen(!chatsOpen)}
+        className="w-full flex items-center justify-between gap-2 rounded-xl border border-border bg-card/60 hover:bg-card hover:border-accent/50 transition-colors px-3 py-2"
+      >
+        <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-foreground">
+          <MessageCircle size={12} className="text-accent" />
+          Your Chats
+          <span className="ml-1 text-[10px] font-semibold text-muted-foreground bg-muted/60 rounded-full px-1.5 py-[1px]">
+            {mockChats.length}
+          </span>
+        </span>
+        <div className="flex items-center gap-1.5">
+          <Plus size={12} className="text-accent hover:text-accent/80" />
+          <ChevronDown
+            size={13}
+            className={`text-muted-foreground transition-transform duration-200 ${chatsOpen ? "rotate-180" : ""}`}
+          />
+        </div>
+      </button>
+      <AnimatePresence initial={false}>
+        {chatsOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="flex flex-col gap-0.5 mt-1.5">
+              {mockChats.map((c, i) => (
+                <button
+                  key={i}
+                  className="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-lg text-xs text-foreground/80 hover:bg-muted/60 transition-colors text-left truncate"
+                >
+                  <MessageCircle size={12} className="shrink-0 text-muted-foreground" />
+                  <span className="truncate">{c}</span>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 
   return (
     <div ref={containerRef} className="relative flex flex-col overflow-hidden h-full" style={{ width: 300 }}>
-      {/* Resize handle on right edge */}
+      {/* Resize handle on left edge (pane sits on the right side of the viewport) */}
       <div
         onMouseDown={handleResizeStart}
-        className="absolute right-0 top-0 bottom-0 w-1.5 cursor-col-resize z-10 hover:bg-primary/30 transition-colors group"
+        className="absolute left-0 top-0 bottom-0 w-1.5 cursor-col-resize z-10 hover:bg-primary/30 transition-colors group"
         title="Drag to resize"
       >
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-10 rounded-full bg-border group-hover:bg-primary/50 transition-colors" />
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-10 rounded-full bg-border group-hover:bg-primary/50 transition-colors" />
       </div>
       <div className="flex-1 flex flex-col p-4 overflow-hidden h-full">
       {hasMessages ? (
@@ -345,23 +386,24 @@ export default function LeftPane({ activeState, selectedBattle, onStateChange }:
             </div>
           </div>
 
-          {/* Power Prompts — always visible, compact mode */}
+          {/* Power Prompts + Your Chats — compact collapsibles */}
           <PowerPromptsSection compact />
+          <YourChatsSection compact />
         </>
       ) : (
-        /* Empty state */
-        <div className="flex-1 flex flex-col items-center justify-center">
+        /* Empty state — top-aligned so the greeting + chat start at the top of the pane */
+        <div className="flex-1 flex flex-col items-center justify-start overflow-y-auto pt-2">
           {/* Greeting */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground">
+          <div className="text-center mb-6 w-full">
+            <h1 className="text-2xl font-bold text-foreground">
               Hi <span className="text-accent">Tony!</span>
             </h1>
-            <p className="text-sm text-muted-foreground mt-2">
+            <p className="text-xs text-muted-foreground mt-1.5 px-2">
               I'm MyFreddyAI, your AI assistant. How can I help you today?
             </p>
           </div>
 
-          {/* Large centered chat input */}
+          {/* Chat input */}
           <div className="w-full max-w-md">
             <div className="chat-input-box">
               <div className="flex items-start gap-2">
@@ -412,8 +454,9 @@ export default function LeftPane({ activeState, selectedBattle, onStateChange }:
             </div>
           </div>
 
-          {/* Power Prompts — always visible */}
+          {/* Power Prompts + Your Chats — collapsible dropdowns */}
           <PowerPromptsSection />
+          <YourChatsSection />
         </div>
       )}
       </div>

@@ -6,6 +6,7 @@ import { mockData, AppState, TrendDirection } from "@/data/mockData";
 import { howToWinBattleKpis, execExcellenceBattleKpis, type BattleKpiConfig } from "@/data/battleKpiData";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend, AreaChart, Area, PieChart, Pie, Cell } from "recharts";
 import HowToWinBattleDetail from "@/components/HowToWinBattleDetail";
+import AgenticInsightsBlock, { type AgenticInsight } from "@/components/AgenticInsightsBlock";
 
 interface RightPaneProps {
   activeState: AppState;
@@ -1416,8 +1417,254 @@ export default function RightPane({ activeState, selectedBattle, period = "L12w"
     );
   };
 
+  // ─── MWB detailed breakdowns ────────────────────────────────────────────
+  // GREEN-readiness data: Brand Power pillar per MWB × brand × region × competitor.
+  // MWB 1 → Different · MWB 2 → Salient · MWB 3 → Meaningful.
+
+  type Row = { label: string; value: string; delta: string; direction: "up" | "down" | "flat" };
+
+  const mwbBreakdownData: Record<
+    number,
+    {
+      pillarLabel: string;
+      byBrand: Row[];
+      byRegion: Row[];
+      vsCompetition: Row[];
+      supporting: { label: string; value: string; trend: string; direction: "up" | "down" }[];
+      agenticInsights: AgenticInsight[];
+    }
+  > = {
+    1: {
+      pillarLabel: "Different",
+      byBrand: [
+        { label: "Heineken®", value: "135", delta: "+5", direction: "up" },
+        { label: "Amstel®",   value: "79",  delta: "+3", direction: "up" },
+        { label: "Schin®",    value: "47",  delta: "+1", direction: "up" },
+      ],
+      byRegion: [
+        { label: "Southeast",    value: "142", delta: "+6", direction: "up" },
+        { label: "South",        value: "138", delta: "+5", direction: "up" },
+        { label: "Northeast",    value: "124", delta: "+3", direction: "up" },
+        { label: "Central-West", value: "130", delta: "+4", direction: "up" },
+      ],
+      vsCompetition: [
+        { label: "AB InBev",   value: "78", delta: "+2", direction: "up" },
+        { label: "Carlsberg",  value: "65", delta: "+3", direction: "up" },
+        { label: "Brahma",     value: "62", delta: "+1", direction: "up" },
+        { label: "Budweiser",  value: "55", delta: "+2", direction: "up" },
+      ],
+      supporting: [
+        { label: "Vol. Market Share", value: "31.2%", trend: "-2.5pp vs PY", direction: "down" },
+        { label: "Value Market Share", value: "29.0%", trend: "-3.1pp vs PY", direction: "down" },
+      ],
+      agenticInsights: [
+        {
+          severity: "action",
+          title: "Heineken® positioning is the strongest Design-to-Win signal",
+          body:
+            "Heineken® Different is +5 pts vs PY — the largest pillar gain in the portfolio. All three brands are directionally positive on Different, so positioning work is translating across the range, not just on the flagship.",
+          action: "Sustain Heineken® Different momentum into the next planning cycle — protect UCL sponsorship weights",
+        },
+        {
+          severity: "info",
+          title: "Southeast is the strongest regional lift",
+          body:
+            "Different is +6 pts in Southeast vs +3 pts in Northeast. The positioning narrative is resonating hardest where Brand Power is already highest (7.2%).",
+          action: "Ringfence Southeast creative weights — don't spread the budget thin across regions with weaker pull",
+        },
+        {
+          severity: "warning",
+          title: "Different gains are not (yet) defending share",
+          body:
+            "Vol. Market Share is -2.5pp and Value Market Share is -3.1pp vs PY despite the Different uplift. Positioning is building but hasn't converted to sell-out — value mix is the near-term risk.",
+          action: "Pair the positioning narrative with a premium mix push in Off-Trade to translate Different into Value Share",
+        },
+      ],
+    },
+    2: {
+      pillarLabel: "Salient",
+      byBrand: [
+        { label: "Heineken®", value: "110", delta: "-2", direction: "down" },
+        { label: "Amstel®",   value: "59",  delta: "+4", direction: "up" },
+        { label: "Schin®",    value: "58",  delta: "-2", direction: "down" },
+      ],
+      byRegion: [
+        { label: "Southeast",    value: "115", delta: "-3", direction: "down" },
+        { label: "South",        value: "112", delta: "-2", direction: "down" },
+        { label: "Northeast",    value: "101", delta: "-4", direction: "down" },
+        { label: "Central-West", value: "106", delta: "-1", direction: "down" },
+      ],
+      vsCompetition: [
+        { label: "AB InBev",   value: "72", delta: "+3", direction: "up" },
+        { label: "Carlsberg",  value: "56", delta: "+1", direction: "up" },
+        { label: "Brahma",     value: "68", delta: "+4", direction: "up" },
+        { label: "Budweiser",  value: "48", delta: "+1", direction: "up" },
+      ],
+      supporting: [
+        { label: "Brand Power", value: "6.5%", trend: "+0.3pp vs PY", direction: "up" },
+        { label: "Meaningful", value: "120", trend: "+3 vs PY", direction: "up" },
+      ],
+      agenticInsights: [
+        {
+          severity: "warning",
+          title: "Every competitor is gaining on Salient — we are not",
+          body:
+            "AB InBev +3, Brahma +4, Carlsberg +1, Budweiser +1 on Salient vs PY. Heineken® is -2 and Schin® -2. The portfolio is losing mental availability while the equity pillars (Meaningful, Different) are building.",
+          action: "Shift the next wave toward Salience-building media — reach and frequency, not just quality of creative",
+        },
+        {
+          severity: "warning",
+          title: "Amstel® Salient is building but the OpCo gap is -14.6pp",
+          body:
+            "Amstel® Salient is +4 pts this period, but the OpCo-level gap vs PY is -14.6pp. Meaningful (+2) and Different (+3) have built; recall has not caught up. Identity roll-out is under-powered relative to the equity gain.",
+          action: "Prioritise Amstel® Salience activation in Off-Trade — where Vol. Share growth is positive",
+        },
+        {
+          severity: "action",
+          title: "Northeast is the biggest regional drag",
+          body:
+            "Salient is -4 pts in Northeast vs -1 in Central-West. It's also the weakest region on Brand Power (5.4%) and Volume Growth (-2.9%). Fixing MWB 2 regionally starts here.",
+          action: "Concentrate MWB 2 identity investment in Northeast for the next two flights",
+        },
+      ],
+    },
+    3: {
+      pillarLabel: "Meaningful",
+      byBrand: [
+        { label: "Heineken®", value: "120", delta: "+3", direction: "up" },
+        { label: "Amstel®",   value: "96",  delta: "+2", direction: "up" },
+        { label: "Schin®",    value: "43",  delta: "+2", direction: "up" },
+      ],
+      byRegion: [
+        { label: "Southeast",    value: "128", delta: "+4", direction: "up" },
+        { label: "South",        value: "122", delta: "+3", direction: "up" },
+        { label: "Northeast",    value: "108", delta: "+2", direction: "up" },
+        { label: "Central-West", value: "116", delta: "+3", direction: "up" },
+      ],
+      vsCompetition: [
+        { label: "AB InBev",   value: "95", delta: "+1", direction: "up" },
+        { label: "Carlsberg",  value: "78", delta: "+2", direction: "up" },
+        { label: "Brahma",     value: "88", delta: "+2", direction: "up" },
+        { label: "Budweiser",  value: "72", delta: "+1", direction: "up" },
+      ],
+      supporting: [
+        { label: "Gross Margin (HNK)", value: "64.2%", trend: "-0.6pp vs PY", direction: "down" },
+        { label: "Brand Power", value: "6.5%", trend: "+0.3pp vs PY", direction: "up" },
+      ],
+      agenticInsights: [
+        {
+          severity: "info",
+          title: "Meaningful is improving portfolio-wide",
+          body:
+            "Heineken® +3, Amstel® +2, Schin® +2 on Meaningful vs PY. Taste & quality perception is strengthening across the range — MWB 3 is directionally on track in every brand and every region.",
+        },
+        {
+          severity: "action",
+          title: "Codify the Heineken® cues into an Amstel® playbook",
+          body:
+            "Heineken® Meaningful leads at 120 vs Amstel® 96 — a 24-point gap. With Amstel® equity building (+2 on Meaningful, +3 on Different), the Heineken® quality narrative is the fastest lever to accelerate Amstel®.",
+          action: "Build a cross-brand taste & quality playbook — Amstel® first, Schin® as follow-up",
+        },
+        {
+          severity: "warning",
+          title: "Meaningful gain is not defending Gross Margin",
+          body:
+            "Heineken® Gross Margin is -0.6pp vs PY. The taste & quality story is resonating but it isn't pulling through to price premium yet — competitors are holding value share while we lose it.",
+          action: "Use Meaningful strength to justify a targeted Heineken® pack-price step-up in Off-Trade key accounts",
+        },
+      ],
+    },
+  };
+
+  const rowColor = (dir: "up" | "down" | "flat") =>
+    dir === "up"
+      ? "text-[hsl(var(--status-green))]"
+      : dir === "down"
+        ? "text-[hsl(var(--status-red))]"
+        : "text-muted-foreground";
+
+  const BreakdownCard = ({ row }: { row: Row }) => {
+    const isUp = row.direction === "up";
+    return (
+      <div className="rounded-xl border border-border bg-card px-3 py-2">
+        <div className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground truncate">
+          {row.label}
+        </div>
+        <div className="flex items-baseline gap-1.5 mt-0.5">
+          <span className="text-base font-extrabold text-foreground">{row.value}</span>
+          <span className={`text-[10px] font-semibold flex items-center gap-0.5 ${rowColor(row.direction)}`}>
+            {row.direction === "up" ? <TrendingUp size={10} /> : row.direction === "down" ? <TrendingDown size={10} /> : <Minus size={10} />}
+            {row.delta}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  const BreakdownBlock = ({ label, rows, cols }: { label: string; rows: Row[]; cols: number }) => (
+    <div className="space-y-1.5">
+      <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground flex items-center gap-2">
+        <div className="w-1 h-3 rounded-full bg-primary" /> {label}
+      </div>
+      <div className={`grid gap-2 grid-cols-${cols}`}>
+        {rows.map((r) => <BreakdownCard key={r.label} row={r} />)}
+      </div>
+    </div>
+  );
+
+  const renderMwbBreakdowns = (mwbId: number) => {
+    const data = mwbBreakdownData[mwbId];
+    if (!data) return null;
+    return (
+      <div className="space-y-4 mt-5 pt-4 border-t border-border">
+        {/* Agentic insight block — same treatment used across the demo */}
+        <AgenticInsightsBlock
+          accent="hsl(270,40%,48%)"
+          insights={data.agenticInsights}
+          label={`MWB ${mwbId} · Agentic Insights`}
+          defaultOpen
+        />
+
+        <div className="text-xs font-bold text-foreground uppercase tracking-wide">
+          {data.pillarLabel} · breakdown
+        </div>
+
+        <BreakdownBlock label="By brand" rows={data.byBrand} cols={3} />
+        <BreakdownBlock label="By region" rows={data.byRegion} cols={4} />
+        <BreakdownBlock label="vs competition" rows={data.vsCompetition} cols={4} />
+
+        {/* Supporting sell-out signals */}
+        <div className="space-y-1.5">
+          <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground flex items-center gap-2">
+            <div className="w-1 h-3 rounded-full bg-primary" /> Supporting sell-out signals
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {data.supporting.map((s) => {
+              const isUp = s.direction === "up";
+              return (
+                <div key={s.label} className="rounded-xl border border-border bg-card px-3 py-2">
+                  <div className="text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground truncate">
+                    {s.label}
+                  </div>
+                  <div className="flex items-baseline gap-2 mt-0.5">
+                    <span className="text-base font-extrabold text-foreground">{s.value}</span>
+                    <span className={`text-[10px] font-semibold flex items-center gap-0.5 ${isUp ? "text-[hsl(var(--status-green))]" : "text-[hsl(var(--status-red))]"}`}>
+                      {isUp ? <TrendingUp size={10} /> : <TrendingDown size={10} />} {s.trend}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const renderState2 = () => {
     if (!selectedBattle || !howToWinBattleKpis[selectedBattle]) {
+      // Scoped to Y/GREEN MWBs per Metric Inventory (#101–#103, BGS).
+      // MWBs 4–9 (AMBER readiness) are intentionally excluded from the overview grid.
       const mwbAlerts: { id: number; name: string; insight: string; action: string; flag?: boolean; kpis: string[] }[] = [
         {
           id: 1,
@@ -1440,55 +1687,16 @@ export default function RightPane({ activeState, selectedBattle, period = "L12w"
           action: "Extend taste & quality communication beyond premium outlets. Activate 'Heineken com churrasco' pairing campaign across mainstream off-trade in Sudeste & Sul.",
           kpis: ["BGS: Taste Perception", "BGS: Ease of Drinking", "BGS: Quality"],
         },
-        {
-          id: 4,
-          name: "Develop Breakthrough Communication",
-          insight: "Share of Voice below Market Share in digital channels. Brahma and Skol outspend Heineken in TVC during key seasonal peaks (Carnaval, Copa do Brasil).",
-          action: "Increase digital SOV in Q2–Q3 and establish always-on content strategy. Leverage UEFA Champions League & Rock in Rio to build differentiated media moments.",
-          kpis: ["ATL%", "BTL%", "In-channel Growth Impact", "Adherence to AP", "Share of Voice", "Share of Mouth"],
-        },
-        {
-          id: 5,
-          name: "Innovate to Drive Penetration",
-          insight: "Innovation Rate of Sales in off-trade below portfolio target. Innovation Weighted Distribution lagging vs. ABI in key modern trade channels across Sudeste.",
-          action: "Prioritize weighted distribution gains for 0.0 and Silver. Improve Innovation Rate of Sales through targeted Horeca activation and bundled off-trade promotions.",
-          flag: true,
-          kpis: ["Innovation Rate", "Innovation Volume", "Innovation Value", "Innovation GP", "Innovation Wtd. Distribution", "Innovation Rate of Sales"],
-        },
-        {
-          id: 6,
-          name: "Ensure Right Pack & Price",
-          insight: "Heineken 600ml is priced at a premium vs. Brahma/Skol equivalents in mainstream off-trade. Pack mix skewed toward 350ml — missing volume opportunity.",
-          action: "Optimize PPA on 600ml in key retailers (Carrefour, Pão de Açúcar). Introduce 1L returnable to compete in price-sensitive channels in interior markets.",
-          kpis: ["Price / L (+ vs. competitors)", "Price Index"],
-        },
-        {
-          id: 7,
-          name: "Optimize Activations & Promotions",
-          insight: "Desperados promo ROI below €1.00 for 4+ consecutive weeks. Promo depth in mainstream off-trade at risk of diluting premium equity.",
-          action: "Pause Desperados digital activation and reallocate budget to high-performing Heineken ATL. Maintain promo guidelines — avoid deep discounting in Horeca.",
-          kpis: ["Promo Pressure", "Promo Depth", "Promo Intensity", "Promo Share", "Share of Promo / Share of Market"],
-        },
-        {
-          id: 8,
-          name: "Maximize Availability of Focus SKUs",
-          insight: "Heineken 350ml OOS rate at 8.2% in C-stores and independents in Nordeste. Distribution gaps in emerging modern trade accounts.",
-          action: "Prioritize distribution fill for 350ml and 0.0 in Nordeste independents. Set OOS alert threshold at 5% and escalate to field sales within 48h.",
-          kpis: ["Sales Power", "Rate of Sales", "Distribution", "Levers", "Customer NPS", "Sales Rep Productivity"],
-        },
-        {
-          id: 9,
-          name: "Amplify Visibility & Experience",
-          insight: "SOS in off-trade below target nationally. On-trade branded presence weak in Sul & Centro-Oeste vs. Skol and Itaipava.",
-          action: "Deploy branded coolers and POS refresh across top 500 on-trade accounts in Sul. Increase shelf blocking in key modern trade for improved brand visibility.",
-          kpis: ["Picture of Success"],
-        },
       ];
 
       return (
         <div className="p-4 space-y-4">
           {/* Header */}
           <h2 className="text-sm font-bold text-foreground uppercase tracking-wide">Overview of Must Win Battles (MWB)</h2>
+          <p className="text-[11px] text-muted-foreground -mt-2">
+            Phase 1 scope: Design-to-Win battles (MWB 1–3) from BGS. Execute-to-Win battles (4–9)
+            are AMBER-readiness in the Metric Inventory and out of scope.
+          </p>
 
           {/* 3-column grid of MWB cards */}
           <div className="grid grid-cols-3 gap-3">
@@ -1523,107 +1731,103 @@ export default function RightPane({ activeState, selectedBattle, period = "L12w"
     const config = howToWinBattleKpis[selectedBattle];
     const fp = state2.freddy_performance;
 
-    // Battle #1: Brand filter + 3 KPIs (no alerts) + Insights
+    // Battle #1 — Different pillar breakdown
     if (selectedBattle === 1) {
       return (
-        <>
+        <div className="p-4">
           {renderBrandFilter()}
           {renderBrandKpiPills(battle1BrandKpis)}
-        </>
+          {renderMwbBreakdowns(1)}
+        </div>
       );
     }
 
-    // Battle #2: Brand filter + 2 KPIs
+    // Battle #2 — Salient pillar breakdown (Salience Gap flag)
     if (selectedBattle === 2) {
       return (
-        <>
+        <div className="p-4">
           {renderBrandFilter()}
           {renderBrandKpiPills(battle2BrandKpis)}
-        </>
+          {renderMwbBreakdowns(2)}
+        </div>
       );
     }
 
-    // Battles #3–9: handled by dedicated component with filters + insights
+    // Battle #3 — Meaningful pillar breakdown (same layout family).
+    if (selectedBattle === 3) {
+      const battle3BrandKpis: Record<string, { label: string; value: string; vs: string }[]> = {
+        "All Brands": [
+          { label: "BGS: Taste Perception", value: "78%", vs: "+3pp vs. comp." },
+          { label: "BGS: Ease of Drinking", value: "82%", vs: "+5pp vs. comp." },
+          { label: "BGS: Quality", value: "85%", vs: "Category leader" },
+        ],
+        "Heineken": [
+          { label: "BGS: Taste Perception", value: "83%", vs: "+6pp vs. avg." },
+          { label: "BGS: Ease of Drinking", value: "87%", vs: "Premium benchmark" },
+          { label: "BGS: Quality", value: "91%", vs: "Top quartile" },
+        ],
+        "Amstel": [
+          { label: "BGS: Taste Perception", value: "74%", vs: "-1pp vs. PY" },
+          { label: "BGS: Ease of Drinking", value: "79%", vs: "In line with avg." },
+          { label: "BGS: Quality", value: "81%", vs: "+2pp vs. Schin" },
+        ],
+        "Schin": [
+          { label: "BGS: Taste Perception", value: "69%", vs: "-2pp vs. PY" },
+          { label: "BGS: Ease of Drinking", value: "74%", vs: "Below avg." },
+          { label: "BGS: Quality", value: "72%", vs: "Value segment" },
+        ],
+      };
+      return (
+        <div className="p-4">
+          {renderBrandFilter()}
+          {renderBrandKpiPills(battle3BrandKpis)}
+          {renderMwbBreakdowns(3)}
+        </div>
+      );
+    }
+
+    // Battles #4–9 are AMBER in the Metric Inventory — unreachable via MainStage.
     return <HowToWinBattleDetail battleId={selectedBattle} period={period} onOpenAllocationAI={onOpenAllocationAI} />;
   };
 
+  // Executional Excellence — same MWB 1-3 scope as How to Win, but the lens is tactical.
+  // Drill-down uses execExcellenceBattleKpis (execution KPIs) instead of howToWinBattleKpis.
   const renderState3 = () => {
+    // Execution-lens overview cards for MWB 1-3 (Y-scoped).
     if (!selectedBattle || !execExcellenceBattleKpis[selectedBattle]) {
-      const execMwbAlerts = [
+      const execMwbAlerts: { id: number; name: string; insight: string; action: string; flag?: boolean }[] = [
         {
           id: 1,
           name: "Create Unique Brand Positioning",
-          flag: false,
-          insight: "Heineken brand positioning tracker shows 3 key retail accounts with outdated POS materials from Q3 campaign. Compliance audit due this week.",
-          action: "Dispatch field reps to the 3 flagged accounts to replace POS materials with current Q4 creative by Friday. Log compliance in CRM.",
+          insight: "Positioning execution strong — UCL sponsorship activation lifted Salience +3.1pp. Differentiation score softening (-1.2pp) — creative refresh required for next flight.",
+          action: "Brief the creative agency on a Different-led refresh for the next wave. Keep UCL sponsorship weights.",
         },
         {
           id: 2,
           name: "Establish Iconic Brand Identity",
-          flag: false,
-          insight: "Visual identity audit reveals 12% of on-trade tap handles are off-brand or damaged across São Paulo and Rio territories.",
-          action: "Issue replacement tap handles and branded glassware to the 45 affected outlets within 2 weeks. Schedule follow-up audit in 30 days.",
+          insight: "Identity execution gap in interior markets — brand asset usage at 71% and visual consistency at 68%. Quality perception holding at 85% but identity inconsistency dilutes recall.",
+          action: "Enforce visual-identity standards at on-trade partners in Nordeste & Central-West. Audit top 50 outlets in 30 days.",
+          flag: true,
         },
         {
           id: 3,
           name: "Offer Great Taste & Quality Drinks",
-          flag: false,
-          insight: "Draught quality scores dropped 4pp in Nordeste on-trade — cleaning cycle compliance fell below 80% in 28 outlets this month.",
-          action: "Activate emergency draught line cleaning for 28 flagged outlets this week. Retrain bar staff on serve standards and schedule re-audit in 14 days.",
-        },
-        {
-          id: 4,
-          name: "Develop Breakthrough Communication",
-          flag: true,
-          insight: "UCL digital activation CTR is 40% above benchmark but Desperados BTL promo ROI has fallen below €1.00 for 4 consecutive weeks.",
-          action: "Pause the underperforming Desperados digital activation immediately. Reallocate freed budget (€180K) to UCL sponsorship amplification this cycle.",
-        },
-        {
-          id: 5,
-          name: "Innovate to Drive Penetration",
-          flag: false,
-          insight: "Heineken Silver 250ml trial packs have 68% distribution in modern trade but only 22% in traditional off-trade — gap concentrated in Nordeste.",
-          action: "Brief distributor network to prioritize Silver 250ml listings in top 200 traditional off-trade accounts in Nordeste within 3 weeks.",
-        },
-        {
-          id: 6,
-          name: "Ensure Right Pack & Price",
-          flag: false,
-          insight: "Price compliance at 91% nationally but 3 key supermarket chains in Sul are running unauthorized deep discounts on Heineken 350ml cans.",
-          action: "Escalate pricing violations to trade marketing today. Issue corrective notices to the 3 chains and confirm price restoration within 7 days.",
-        },
-        {
-          id: 7,
-          name: "Optimize Activations & Promotions",
-          flag: true,
-          insight: "Current promo cycle shows promo pressure at 24% vs. 20% target. Promo depth exceeding guidelines in 6 of top 10 modern trade accounts.",
-          action: "Reduce promo depth to guideline levels in the 6 over-investing accounts this week. Reallocate excess spend to underperforming promo mechanics.",
-        },
-        {
-          id: 8,
-          name: "Maximize Availability of Focus SKUs",
-          flag: false,
-          insight: "Heineken 350ml OOS rate spiked to 8.2% in C-stores this week — root cause is a logistics delay at the Nordeste distribution hub.",
-          action: "Expedite emergency stock transfer from Centro-Oeste hub to Nordeste today. Set OOS alert threshold at 5% with 48-hour field escalation protocol.",
-        },
-        {
-          id: 9,
-          name: "Amplify Visibility & Experience",
-          flag: true,
-          insight: "Amstel On-Trade POSM coverage at 52% (lowest in portfolio) and Sales Power declining -1.8 pts. ATL ROI at €0.92 — opportunity to shift budget to BTL execution.",
-          action: "Shift Amstel ATL budget to targeted On-Trade BTL activations. Reallocate 30% of ATL spend to POSM, branded coolers and draught equipment in top 1,000 OOH accounts.",
+          insight: "Taste execution stable (BGS Taste 78%, Quality 85%, Occasion Fit 74%). Liquid satisfaction at 79% — maintaining brewing standards nationally.",
+          action: "Codify the Heineken® quality cues into an Amstel® playbook to accelerate its Meaningful gain.",
         },
       ];
 
       return (
         <div className="p-4 space-y-4">
-          <h2 className="text-sm font-bold text-foreground uppercase tracking-wide">Executional Excellence — MWB Overview</h2>
-          <p className="text-[10px] text-muted-foreground -mt-2">Tactical insights & immediate actions for each Must Win Battle — Brazil market</p>
+          <h2 className="text-sm font-bold text-foreground uppercase tracking-wide">Executional Excellence · MWB Overview</h2>
 
           <div className="grid grid-cols-3 gap-3">
             {execMwbAlerts.map((m) => (
-              <div key={m.id} className={`rounded-xl border bg-card overflow-hidden ${m.flag ? "border-[hsl(var(--status-orange))]" : "border-border"}`}>
-                <div className={`flex items-center gap-2 px-3 py-2 ${m.flag ? "bg-[hsl(var(--status-orange))]" : "bg-primary"}`}>
+              <div
+                key={m.id}
+                className={`rounded-xl border bg-card overflow-hidden ${m.flag ? "border-[hsl(var(--status-orange))]" : "border-border"}`}
+              >
+                <div className={`flex items-center gap-2 px-3 py-2 ${m.flag ? "bg-[hsl(var(--status-orange))]" : "bg-[hsl(35,45%,50%)]"}`}>
                   <span className="text-[9px] font-extrabold text-white/80 uppercase tracking-wider shrink-0">MWB {m.id}</span>
                   <span className="text-[10px] font-bold text-white leading-tight">{m.name}</span>
                 </div>
@@ -1634,7 +1838,7 @@ export default function RightPane({ activeState, selectedBattle, period = "L12w"
                   </div>
                   <div className="h-px bg-border" />
                   <div className="flex items-start gap-1.5">
-                    <CheckSquare size={11} className="mt-0.5 shrink-0 text-primary" />
+                    <CheckSquare size={11} className="mt-0.5 shrink-0 text-[hsl(35,45%,50%)]" />
                     <p className="text-[10px] font-semibold text-foreground leading-snug">{m.action}</p>
                   </div>
                 </div>
@@ -1645,208 +1849,11 @@ export default function RightPane({ activeState, selectedBattle, period = "L12w"
       );
     }
 
-    // Battle #1: Brand filter + 3 KPIs (same as How to Win)
-    if (selectedBattle === 1) {
-      return (
-        <>
-          {renderBrandFilter()}
-          {renderBrandKpiPills(battle1BrandKpis)}
-        </>
-      );
-    }
-
-    // Battle #2: Brand filter + 2 KPIs (same as How to Win)
-    if (selectedBattle === 2) {
-      return (
-        <>
-          {renderBrandFilter()}
-          {renderBrandKpiPills(battle2BrandKpis)}
-        </>
-      );
-    }
-
-    // Battle #4: KPIs + Insights + Graphs + AllocationAI deep-dive (Exec Excellence specific)
-    if (selectedBattle === 4) {
-      const config = execExcellenceBattleKpis[4];
-      const fp = state3.freddy_performance;
-      return (
-        <>
-          {renderBattleKpiSection(config, true)}
-          <div className="border-t border-border pt-3 mt-1">
-            <h3 className="font-bold text-xs text-foreground mb-2 uppercase tracking-wide">ATL / BTL Split vs. Target</h3>
-            <div className="mb-3">
-              <ResponsiveContainer width="100%" height={160}>
-              <BarChart data={[
-                  { name: "Actual", ATL: 62, BTL: 38 },
-                  { name: "Target", ATL: 65, BTL: 35 },
-                ]} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} unit="%" />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} width={50} />
-                  <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }} formatter={(value: number) => `${value}%`} />
-                  <Legend wrapperStyle={{ fontSize: 10 }} />
-                  <Bar dataKey="ATL" stackId="a" fill="hsl(var(--primary))" radius={[0, 0, 0, 0]} />
-                  <Bar dataKey="BTL" stackId="a" fill="hsl(var(--status-orange))" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mb-4">
-              <h3 className="font-bold text-xs text-foreground mb-2 uppercase tracking-wide">ABTL Golden Rules Adherence (L6 Flights)</h3>
-              <ResponsiveContainer width="100%" height={150}>
-                <BarChart data={[
-                  { rule: "Pre-test", adherence: 75 },
-                  { rule: "Brief Sign-off", adherence: 92 },
-                  { rule: "Media Plan", adherence: 83 },
-                  { rule: "Budget Gate", adherence: 67 },
-                  { rule: "Post-eval", adherence: 58 },
-                  { rule: "Overall", adherence: 76 },
-                ]} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="rule" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} />
-                  <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} unit="%" />
-                  <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }} formatter={(value: number) => `${value}%`} />
-                  <Bar dataKey="adherence" fill="hsl(var(--status-orange))" radius={[4, 4, 0, 0]}>
-                    {[75, 92, 83, 67, 58, 76].map((val, idx) => (
-                      <Cell key={idx} fill={val >= 80 ? "hsl(var(--status-green))" : "hsl(var(--status-orange))"} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <button onClick={onOpenAllocationAI} className="w-full flex items-center justify-center gap-2 text-sm font-bold text-primary-foreground bg-primary hover:bg-primary/90 rounded-xl py-3 px-4 shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] mb-4">
-              <Zap size={16} />
-              Deep-dive into {config.deepDiveLabel}
-              <ExternalLink size={14} />
-            </button>
-            <div className="pt-3 border-t border-border">
-              <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide mb-2">Data Sources</h4>
-              <div className="flex flex-wrap gap-1.5">
-                {["Media Mix Model (MMM)", "SAP Revenue Cockpit", "Campaign Performance Tracker", "AllocationAI Engine v2.1"].map((src, i) => (
-                  <span key={i} className="inline-flex items-center text-[9px] font-medium text-muted-foreground bg-muted/50 border border-border rounded-md px-2 py-1">
-                    {src}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </>
-      );
-    }
-
-    // Battles #3, 5–9: same KPIs & filters as How to Win
-    return <HowToWinBattleDetail battleId={selectedBattle} period={period} onOpenAllocationAI={onOpenAllocationAI} />;
-  };
-
-  const renderHome = () => {
-    const fp1 = state1.freddy_performance;
-    const fp2 = state2.freddy_performance;
-    const fp3 = state3.freddy_performance;
-    const topKpis = Object.values(state1.top_kpis);
-
-    const sections = [
-      {
-        title: "Shared Reality",
-        subtitle: "Insights and trends covering our company, competition, categories, channels, and consumers",
-        state: "executive_performance" as AppState,
-        battle: null as number | null,
-        color: "bg-[hsl(200,40%,45%)]",
-        icon: "📊",
-        alert: null as string | null,
-        highlights: [
-          "Category Growth & HNK OpCo metrics",
-          "Brand Power & Sales Power tracking",
-          "Commercial Investment overview",
-          "Competitor benchmarks (Carlsberg, ABI)",
-        ],
-      },
-      {
-        title: "Where to Play",
-        subtitle: "Prioritized opportunities, including demand spaces and repertoires",
-        state: "shared_reality" as AppState,
-        battle: null as number | null,
-        color: "bg-[hsl(150,35%,55%)]",
-        icon: "🎯",
-        alert: "Brand Power declined -2.0 pts vs PY. Amstel Salience dropped -14.6pp – investigate Key Account performance.",
-        highlights: [
-          `Market Share: ${topKpis[0].value} (${topKpis[0].trend})`,
-          `Brand Power: ${topKpis[1].value} (${topKpis[1].trend})`,
-          `Sales Power: ${topKpis[2].value} (${topKpis[2].trend})`,
-          `${fp1.recommended_actions.length} recommended actions`,
-        ],
-      },
-      {
-        title: "How to Win",
-        subtitle: "Insights supporting strategic choices along our 9 Must-Win-Battles",
-        state: "how_to_win" as AppState,
-        battle: null as number | null,
-        color: "bg-[hsl(140,40%,40%)]",
-        icon: "⚔️",
-        alert: fp2.insight_text,
-        highlights: [
-          "9 Must-Win Battles across Design & Execute",
-          `Penetration: ${fp2.main_metric_1}`,
-          `Volume growth: ${fp2.main_metric_2}`,
-          "Cannibalization monitoring (Silver vs Original)",
-        ],
-      },
-      {
-        title: "Executional Excellence",
-        subtitle: "Insights and tools supporting you in the day-to-day activities and choices to execute on our strategy",
-        state: "excellent_execution" as AppState,
-        battle: null as number | null,
-        color: "bg-[hsl(35,45%,50%)]",
-        icon: "🏆",
-        alert: "Desperados Promo ROI (€0.85) is below threshold. Activations & Promotions battle flagged red – budget reallocation recommended.",
-        highlights: [
-          `ROI (ATL Campaign): ${fp3.main_metric}`,
-          "AllocationAI budget optimization",
-          "Brand performance comparison across competitors",
-          `${fp3.recommended_actions.length} recommended actions`,
-        ],
-      },
-    ];
-
+    // Drill-down for MWB 1-3 using execExcellenceBattleKpis (tactical KPIs per battle).
+    const config = execExcellenceBattleKpis[selectedBattle];
     return (
-      <div className="space-y-4">
-        <div>
-          <h3 className="font-bold text-lg text-foreground">Welcome back, Tony</h3>
-          <p className="text-sm text-muted-foreground mt-0.5">Here's an overview of your key dashboards and insights.</p>
-        </div>
-        {sections.map((section, i) => (
-          <div key={i} className="border border-border rounded-2xl overflow-hidden bg-card hover:shadow-md transition-shadow">
-            <div className={`${section.color} px-4 py-2.5 flex items-center justify-between`}>
-              <div className="flex items-center gap-2">
-                <span className="text-base">{section.icon}</span>
-                <div>
-                  <h4 className="text-sm font-bold text-white">{section.title}</h4>
-                  <p className="text-[11px] text-white/75">{section.subtitle}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => onNavigate?.(section.state, section.battle)}
-                className="flex items-center gap-1.5 text-[11px] font-semibold text-white bg-white/20 hover:bg-white/30 rounded-full px-3 py-1.5 transition-colors"
-              >
-                Open <ArrowRight size={12} />
-              </button>
-            </div>
-            <div className="p-4 space-y-3">
-              {section.alert && (
-                <div className="flex items-start gap-2.5 bg-[hsl(30,100%,97%)] border border-[hsl(30,80%,75%)] rounded-lg px-3.5 py-2.5">
-                  <AlertTriangle size={14} className="text-[hsl(30,80%,50%)] mt-0.5 shrink-0" />
-                  <p className="text-xs text-[hsl(30,40%,30%)] leading-relaxed">{section.alert}</p>
-                </div>
-              )}
-              <ul className="space-y-1.5">
-                {section.highlights.map((h, j) => (
-                  <li key={j} className="flex items-start gap-2 text-xs text-foreground/80">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                    {h}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        ))}
+      <div className="p-4">
+        {renderBattleKpiSection(config, true)}
       </div>
     );
   };
@@ -1863,7 +1870,6 @@ export default function RightPane({ activeState, selectedBattle, period = "L12w"
             exit={{ opacity: 0, x: -10 }}
             transition={{ duration: 0.2 }}
           >
-            {activeState === "home" && renderHome()}
             {activeState === "shared_reality" && renderState1()}
             {activeState === "how_to_win" && renderState2()}
             {activeState === "excellent_execution" && renderState3()}

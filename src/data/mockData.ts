@@ -1,127 +1,112 @@
+// Scoped demo (Phase 1): only metrics marked Y in the Metric Inventory scope file
+// are referenced in this mock data. Domains: Sell-out and Brand Power (DFC / CPM, BGS).
+// Removed: Sales Power, ROI / commercial-spend mocks, Penetration / innovation /
+// cannibalization narratives, MWBs 4–9, and the Excellent-Execution scenario.
+
 export const mockData = {
   scenarios: {
     state_1_shared_reality: {
+      // Only Y-marked metrics from Home → Total Market:
+      // Vol. Market Share, Value Market Share, Volume Growth, Brand Power Index.
       top_kpis: {
-        market_share: { label: "Market Share", value: "30%", trend: "+0.4pp", status: "positive" as const },
-        brand_power: { label: "Brand Power", value: "53.1", trend: "-2.0 pts vs PY", status: "negative" as const },
-        sales_power: { label: "Sales Power", value: "62.3", trend: "-1.8 pts vs PY", status: "negative" as const },
-        margin: { label: "Margin", value: "40%", trend: "+0.3pp", status: "positive" as const },
+        vol_market_share: { label: "Vol. Market Share", value: "31.2%", trend: "-2.5pp vs PY", status: "negative" as const },
+        value_market_share: { label: "Value Market Share", value: "29.0%", trend: "-3.1pp vs PY", status: "negative" as const },
+        brand_power: { label: "Brand Power", value: "6.5%", trend: "+0.3pp vs PY", status: "positive" as const },
+        volume_growth: { label: "Volume Growth", value: "-2.1%", trend: "-2,345 khl vs PY", status: "negative" as const },
       },
       freddy_performance: {
-        main_metric: "53.1%",
+        main_metric: "6.5%",
         main_label: "Brand Power",
+        // All four actions reference Y-marked metrics only.
         recommended_actions: [
-          "Investigate Salience drop for Amstel in Key Accounts – go to Trade dashboard",
-          "Review Meaningful drivers for Heineken 0.0 – go to Consumer Insights tool",
-          "Adjust media spend to counter competitor momentum – go to Media dashboard",
+          "Investigate Amstel Salience drop (-14.6pp) in the Shared Reality brand power view",
+          "Review Heineken Meaningful drivers in Consumer Insights — Different is already +5 pts",
+          "Lean into Off-Trade Vol. Share where the category is in growth for Heineken",
         ],
         data_table: [
           {
             metric: "Brand Power",
-            heineken: { l12w: "11.3", dya: "+0.6pp", trend: "up" as const },
-            amstel: { l12w: "5.6", dya: "-1.0pp", trend: "down" as const },
-            schin: { l12w: "2.0", dya: "+0.1pp", trend: "up" as const },
+            heineken: { l12w: "6.5", dya: "+0.3pp", trend: "up" as const },
+            amstel: { l12w: "3.8", dya: "+0.2pp", trend: "up" as const },
+            schin: { l12w: "1.4", dya: "+0.1pp", trend: "up" as const },
           },
           {
             metric: "Salient",
-            heineken: { l12w: "155.1", dya: "+11.8pp", trend: "up" as const },
-            amstel: { l12w: "86.1", dya: "-14.6pp", trend: "down" as const },
-            schin: { l12w: "84.1", dya: "-3.2pp", trend: "down" as const },
+            heineken: { l12w: "110", dya: "-2.0", trend: "down" as const },
+            amstel: { l12w: "59", dya: "+4.0", trend: "up" as const },
+            schin: { l12w: "58", dya: "-2.0", trend: "down" as const },
           },
           {
             metric: "Meaningful",
-            heineken: { l12w: "184.8", dya: "+2.4pp", trend: "up" as const },
-            amstel: { l12w: "139.9", dya: "+2.8pp", trend: "up" as const },
-            schin: { l12w: "62.4", dya: "+2.7pp", trend: "up" as const },
+            heineken: { l12w: "120", dya: "+3.0", trend: "up" as const },
+            amstel: { l12w: "96", dya: "+2.0", trend: "up" as const },
+            schin: { l12w: "43", dya: "+2.0", trend: "up" as const },
           },
           {
             metric: "Different",
-            heineken: { l12w: "169.5", dya: "-4.3pp", trend: "down" as const },
-            amstel: { l12w: "114.2", dya: "+2.8pp", trend: "up" as const },
-            schin: { l12w: "68.8", dya: "+0.5pp", trend: "up" as const },
+            heineken: { l12w: "135", dya: "+5.0", trend: "up" as const },
+            amstel: { l12w: "79", dya: "+3.0", trend: "up" as const },
+            schin: { l12w: "47", dya: "+1.0", trend: "up" as const },
           },
         ],
       },
       chat_simulation: {
         user_prompt: "Which Heineken brands drove Brand Power growth in the OpCo?",
         ai_response:
-          'In the latest quarter, **Birra Moretti** was the primary driver of Brand Power growth, contributing +1.8 points, largely driven by a spike in Salience from the recent summer campaign. **Heineken 0.0** followed closely (+1.1 pts) with strong gains in the "Meaningful" metric among the 25-34 demographic.',
+          'Brand Power is up +0.3pp vs PY to 6.5% at OpCo level. The uplift is concentrated in **Heineken®**, where *Different* gained +5 pts and *Meaningful* +3 pts. **Amstel®** is improving across Meaningful (+2 pts) and Different (+3 pts), but its *Salient* is still down -14.6pp vs PY — the equity gains have not yet converted into recall.',
       },
     },
 
     state_2_how_to_win: {
+      // Scoped to BGS MWBs 1–3 (Design to Win) — the three Y-marked battles.
+      // Execute-to-Win battles (4–9) are out of scope for Phase 1.
       must_win_battles: [
         { id: 1, name: "Create unique brand positioning", status: "green" as const },
-        { id: 2, name: "Establish iconic brand identity", status: "green" as const },
+        { id: 2, name: "Establish iconic brand identity", status: "orange" as const, flag: "Salience Gap" },
         { id: 3, name: "Offer great taste & quality drinks", status: "green" as const },
-        { id: 4, name: "Develop breakthrough communication", status: "green" as const },
-        { id: 5, name: "Innovate to drive penetration", status: "orange" as const, flag: "Cannibalization Detected" },
-        { id: 6, name: "Ensure right pack & price", status: "green" as const },
-        { id: 7, name: "Optimize activations & promotions", status: "green" as const },
-        { id: 8, name: "Maximize availability of focus SKU's", status: "green" as const },
-        { id: 9, name: "Amplify visibility & experience", status: "green" as const },
       ],
       freddy_performance: {
-        main_metric_1: "+4.2%",
-        main_label_1: "Penetration",
-        main_metric_2: "+18.5%",
-        main_label_2: "Volume growth",
-        insight_text: "Innovation Silver from Heineken impacts Original core volume. This yields high cannibalization in HUK.",
+        main_metric_1: "+0.3pp",
+        main_label_1: "Brand Power",
+        main_metric_2: "-14.6pp",
+        main_label_2: "Amstel Salient",
+        insight_text:
+          "Overall Brand Power is improving (+0.3pp vs PY) but MWB 2 (Iconic Brand Identity) is flagged: Amstel Salient is down -14.6pp vs PY while Meaningful (+2.8pp) and Different (+2.8pp) continue to build.",
         recommended_actions: [
-          "Launch smaller pack size for the new SKU, adjusting price points to maintain core SKU volume – go to Pricing tool",
-          "Bundle offers to balance sales – go to Promotions dashboard",
+          "Prioritise Salience-driving activity for Amstel to convert Meaningful and Different gains into recall",
+          "Sustain Heineken Different momentum (+5 pts vs PY) — the strongest Design-to-Win signal in the portfolio",
         ],
         data_table: [
           {
-            metric: "Volume Growth",
-            new_sku: { name: "Heineken Silver", l12w: "+18.5%", trend: "up" as const },
-            core_sku: { name: "Heineken Original", l12w: "-6.1%", trend: "down" as const },
+            metric: "Brand Power",
+            new_sku: { name: "Heineken®", l12w: "6.5%", trend: "up" as const },
+            core_sku: { name: "Amstel®", l12w: "3.8%", trend: "up" as const },
           },
           {
-            metric: "Penetration",
-            new_sku: { name: "Heineken Silver", l12w: "+4.2%", trend: "up" as const },
-            core_sku: { name: "Heineken Original", l12w: "-1.5%", trend: "down" as const },
+            metric: "Salient (MWB 2 signal)",
+            new_sku: { name: "Heineken®", l12w: "110 (-2)", trend: "down" as const },
+            core_sku: { name: "Amstel®", l12w: "59 (+4)", trend: "up" as const },
           },
         ],
       },
     },
 
     state_3_excellent_execution: {
+      // Execution lens on the same Y-scoped MWBs (1–3). Status colour-coded by tactical
+      // execution health (brand asset usage, identity consistency, taste delivery).
       must_win_battles: [
         { id: 1, name: "Create unique brand positioning", status: "green" as const },
-        { id: 2, name: "Establish iconic brand identity", status: "green" as const },
+        { id: 2, name: "Establish iconic brand identity", status: "orange" as const, flag: "Identity Gap" },
         { id: 3, name: "Offer great taste & quality drinks", status: "green" as const },
-        { id: 4, name: "Develop breakthrough communication", status: "orange" as const, flag: "Budget Optimization Required" },
-        { id: 5, name: "Innovate to drive penetration", status: "green" as const },
-        { id: 6, name: "Ensure right pack & price", status: "green" as const },
-        { id: 7, name: "Optimize activations & promotions", status: "orange" as const, flag: "ROI Below Threshold" },
-        { id: 8, name: "Maximize availability of focus SKU's", status: "green" as const },
-        { id: 9, name: "Amplify visibility & experience", status: "orange" as const, flag: "Amstel OOH Visibility Gap" },
       ],
       freddy_performance: {
-        main_metric: "€2.45",
-        main_label: "ROI (ATL Campaign)",
+        main_metric: "+2.8pp",
+        main_label: "Execution Quality Δ vs PY",
+        insight_text:
+          "MWB 1 & 3 execution on track. MWB 2 tactical flag: on-trade visual asset usage at 71% in interior markets — identity roll-out not matching brand-building momentum.",
         recommended_actions: [
-          "AllocationAI recommends shifting budget from Promotions to UCL Sponsorship to maximize overall ROI. – go to AllocationAI tool",
-          "Pause underperforming Desperados digital activation – go to Media tool",
-        ],
-        data_table: [
-          {
-            metric: "UCL Sponsorship (ATL)",
-            spend: "€4.2M",
-            roi: "€2.45",
-            roi_status: "Exceeding" as const,
-            volume_lift: "+8.4%",
-            volume_trend: "up" as const,
-          },
-          {
-            metric: "Desperados Promo (BTL)",
-            spend: "€1.8M",
-            roi: "€0.85",
-            roi_status: "Below Threshold" as const,
-            volume_lift: "+1.2%",
-            volume_trend: "down" as const,
-          },
+          "Enforce on-trade visual-asset compliance in Nordeste & Central-West to close the MWB 2 execution gap",
+          "Codify the Heineken® taste & quality cues driving MWB 3 Meaningful gains into an Amstel® playbook",
         ],
       },
     },
